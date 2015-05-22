@@ -6,7 +6,7 @@ function Square(x,y)
    
    this.solved=false;
    this.numbers=[]; //possible values array, filled in to all true with .populate
-   this.value=0;
+   this.val=0;
     this.xValue= x;
     this.yValue= y;
    this.protect=false;
@@ -32,7 +32,7 @@ Square.prototype.solve= function (numb)
    }
    this.numbers[numb] = true; 
    this.solved = true;
-    this.value=numb;
+    this.val=numb;
    
  
             

@@ -43,7 +43,7 @@ Grid.prototype.gridDisplayString = function(){
   var Puzzle="<br><br>"
   for (y=9; y>=1; y-=1){
     for (x=1; x<=9; x+=1){
-      Puzzle=Puzzle.concat(this.square[x][y]["value"]+"&nbsp; &nbsp;")
+      Puzzle=Puzzle.concat(this.square[x][y]["val"]+"&nbsp; &nbsp;")
 
     }
     Puzzle=Puzzle.concat("<br>");
@@ -494,7 +494,7 @@ Grid.prototype.elimPass = function ()
       {
           if (this.square[x][y].solved)
           {
-              var V= this.square[x][y].value;
+              var V= this.square[x][y].val;
               this.rowElim (x, y, V);
               this.columnElim (x, y, V);
               this.boxElim (x, y, V);
@@ -736,23 +736,23 @@ Grid.prototype.hasErrors= function (){
   for (var i=1; i<=9; i+=1){
     for(var j = 1; j <= 9; j+=1){
       if (this.square[i][j].solved){
-        var val=this.square[i][j].value;
+        var val=this.square[i][j].val;
         var row=this.rowPoint(i, j);
         var col= this.columnPoint(i,j);
         var box = this.boxPoint(i,j);
         row.shift(); col.shift(); box.shift();
         row.forEach(function(SQRE){
-          if (!(SQRE === (this.square[i][j])) && SQRE.value===val){
+          if (!(SQRE === (this.square[i][j])) && SQRE.val===val){
             errors = true;
           }
         }, this)
         col.forEach(function(SQRE){
-          if (!(SQRE === (this.square[i][j])) && SQRE.value===val){
+          if (!(SQRE === (this.square[i][j])) && SQRE.val===val){
             errors = true;
           }
         }, this)
         box.forEach(function(SQRE){
-          if (!(SQRE === (this.square[i][j])) && SQRE.value===val){
+          if (!(SQRE === (this.square[i][j])) && SQRE.val===val){
             errors = true;
           }
         }, this)
@@ -800,12 +800,17 @@ Grid.prototype.guessing = function(x, y, guess){
 */ 
 
 Grid.prototype.hiddenPairs = function (PointerArray){
-  for (var i=1; i<=9; i+=1){
-    for(var j=i+1; j<=9; j+=1){
+  for (var i=1; i<=8; i+=1){ //check val1 1-8
+    for(var j=i+1; j<=9; j+=1){ // check 2nd value 2-9
       var whichSquares=countNotSolved(PointerArray, i);
-      if (whichSquares.equals(countNotSolved(PointerArray, j)) && whichSquares.length===2){
-        this.genElim(PointerArray, i);
-        this.genElim(PointerArray, j);
+      if (whichSquares.length===2 //val 1 is in only 2 squares 
+          && whichSquares.equals(countNotSolved(PointerArray, j))){ // and val 2 is in only same 2 squares
+        PointerArray[whichSquares[0]].toggleProtect();
+        PointerArray[whichSquares[1]].toggleProtect();
+        this.genElim(PointerArray, i); //protect the identified pair of squares and eliminate values i,j from the box
+        this.genElim(PointerArray, j); //should be unnecessary
+        PointerArray[whichSquares[0]].toggleProtect();
+        PointerArray[whichSquares[1]].toggleProtect();
         for (k=1; k<=9; k+=1){
           PointerArray[whichSquares[0]].numbers[k]=false
           PointerArray[whichSquares[1]].numbers[k]=false
@@ -846,16 +851,16 @@ Grid.prototype.hiddenTriple = function (PointerArray){
 Grid.prototype.hiddenPass = function(){
   for (var i=1; i<=9; i+=1){
     this.hiddenPairs(this.rowPoint(1, i));
-    this.hiddenTriple(this.rowPoint(1, i));
+    //this.hiddenTriple(this.rowPoint(1, i));
   };
   for (var j=1; j<=9; j+=1){
     this.hiddenPairs(this.columnPoint(j, 1));
-    this.hiddenTriple(this.columnPoint(j, 1));
+    //this.hiddenTriple(this.columnPoint(j, 1));
   };
   for (var k=1; k<=3; k+=1){
     for (var l=1; l<=3; l+=1){
       this.hiddenPairs(this.boxPoint(k, l));
-      this.hiddenTriple(this.boxPoint(k, l));
+      //this.hiddenTriple(this.boxPoint(k, l));
     }
   };
 }
@@ -864,7 +869,7 @@ var cloneGrid = function(sourceGrid){
   newGrid.changes=sourceGrid.changes;
   for (var i=1; i<=9; i+=1){
     for (var j=1; j<=9; j+=1){
-      newGrid.square[i][j].value=sourceGrid.square[i][j].value;
+      newGrid.square[i][j].val=sourceGrid.square[i][j].val;
       newGrid.square[i][j].solved=sourceGrid.square[i][j].solved;
       newGrid.square[i][j].protect=sourceGrid.square[i][j].protect;
       for (var k=1; k<=9; k+=1){
